@@ -1,6 +1,6 @@
 {
   "name": "settle-loader",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "epii imports and exports loader for webpack",
   "main": "index.js",
   "repository": {

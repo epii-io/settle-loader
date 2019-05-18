@@ -3,8 +3,8 @@ const path = require('path');
 const loaderUtils = require('loader-utils');
 
 const TEMPLATES = {
-  imports: fs.readFileSync(path.join(__dirname, 'tpl.imports.txt'), 'utf8'),
-  exports: fs.readFileSync(path.join(__dirname, 'tpl.exports.txt'), 'utf8')
+  $imports: fs.readFileSync(path.join(__dirname, 'tpl.imports.txt'), 'utf8'),
+  $exports: fs.readFileSync(path.join(__dirname, 'tpl.exports.txt'), 'utf8')
 };
 
 /**
@@ -25,7 +25,7 @@ function IIFE(code) {
  */
 function makeImportsCode(links) {
   if (links.length > 0) {
-    return links.map(e => TEMPLATES.imports.replace(/\$\{e\}/g, e)).join('\n'); 
+    return links.map(e => TEMPLATES.$imports.replace(/\$\{e\}/g, e)).join('\n'); 
   }
   return '';
 }
@@ -37,8 +37,8 @@ function makeImportsCode(links) {
  * @return {String} exports code
  */
 function makeExportsCode(stubs) {
-  if (stubs.length === 1 && stubs.length === 2) {
-    return TEMPLATES.exports
+  if (stubs.length === 1 || stubs.length === 2) {
+    return TEMPLATES.$exports
       .replace(/\$\{e0\}/g, stubs[0])
       .replace(/\$\{e1\}/g, stubs[1] || 'entry');
   }

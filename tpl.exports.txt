@@ -4,7 +4,7 @@ if (typeof window !== 'undefined' && window) {
     var capture = __webpack_exports__.default;
     if (!capture) {
       var keys = Object.keys(__webpack_exports__);
-      if (keys.length > 1) {
+      if (keys.length > 0) {
         capture = __webpack_exports__[keys[0]];
       }
     }
