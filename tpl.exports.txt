@@ -1,0 +1,15 @@
+if (typeof window !== 'undefined' && window) {
+  if (!window.${e0}) window.${e0} = {};
+  if (typeof __webpack_exports__ !== 'undefined' && __webpack_exports__) {
+    var capture = __webpack_exports__.default;
+    if (!capture) {
+      var keys = Object.keys(__webpack_exports__);
+      if (keys.length > 1) {
+        capture = __webpack_exports__[keys[0]];
+      }
+    }
+    window.${e0}.${e1} = capture;
+  } else {
+    console.error('settle-loader error :: __webpack_exports__ not found');
+  }
+};

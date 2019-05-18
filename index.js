@@ -1,6 +1,11 @@
-'use strict'
+const fs = require('fs');
+const path = require('path');
+const loaderUtils = require('loader-utils');
 
-const loaderUtils = require('loader-utils')
+const TEMPLATES = {
+  imports: fs.readFileSync(path.join(__dirname, 'tpl.imports.txt'), 'utf8'),
+  exports: fs.readFileSync(path.join(__dirname, 'tpl.exports.txt'), 'utf8')
+};
 
 /**
  * wrap IIFE
@@ -9,7 +14,35 @@ const loaderUtils = require('loader-utils')
  * @return {String} iife code
  */
 function IIFE(code) {
-  return ';(function(){' + code + '}());'
+  return ';(function(){' + code + '}());';
+}
+
+/**
+ * make code for imports
+ *
+ * @param  {String[]} links
+ * @return {String} imports code
+ */
+function makeImportsCode(links) {
+  if (links.length > 0) {
+    return links.map(e => TEMPLATES.imports.replace(/\$\{e\}/g, e)).join('\n'); 
+  }
+  return '';
+}
+
+/**
+ * make code for exports
+ *
+ * @param  {String[]} stubs
+ * @return {String} exports code
+ */
+function makeExportsCode(stubs) {
+  if (stubs.length === 1 && stubs.length === 2) {
+    return TEMPLATES.exports
+      .replace(/\$\{e0\}/g, stubs[0])
+      .replace(/\$\{e1\}/g, stubs[1] || 'entry');
+  }
+  return '';
 }
 
 /**
@@ -20,34 +53,20 @@ function IIFE(code) {
  * @return {String} result
  */
 module.exports = function SettleLoader(source) {
-  var query = loaderUtils.getOptions(this)
-  var { stub, link = [] } = query
+  const query = loaderUtils.getOptions(this);
+  let { stub, link = [] } = query;
   if (!stub || typeof stub !== 'string') {
-    throw new Error('settle loader :: invalid stub')
+    throw new Error('settle loader :: invalid stub');
   }
-  stub = stub.split('.')
+  stub = stub.split('.');
   if (stub.length > 2) {
-    throw new Error('settle loader :: too many level')
+    throw new Error('settle loader :: stub too deep');
   }
   if (typeof link === 'string') link = [link]
   if (!Array.isArray(link)) {
-    throw new Error('settle loader :: invalid link')
+    throw new Error('settle loader :: invalid link');
   }
-  var code1 = `
-    if (typeof window !== 'undefined') {
-      if (!window.${stub[0]}) window.${stub[0]} = {};
-      if (exports) {
-        var keys = Object.keys(exports);
-        if (keys.length > 0) {
-          window.${stub[0]}.${stub[1] || 'entry'} =
-            exports.default || exports[keys[0]];
-        } else {
-          console.warn('settle loader :: undefined')
-        }
-      };
-    };
-  `.replace(/\n|(\s{2})/g, '')
-  var code2 = link.length > 0 ?
-    link.map(e => `require('${e}');`).join('') : ''
-  return source + IIFE(code1 + code2)
+  var code1 = makeExportsCode(stub);
+  var code2 = makeImportsCode(link);
+  return source + IIFE(code1 + code2);
 }

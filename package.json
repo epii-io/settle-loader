@@ -1,14 +1,14 @@
 {
   "name": "settle-loader",
-  "version": "0.1.0",
-  "description": "settle loader module for webpack",
+  "version": "0.2.0",
+  "description": "epii imports and exports loader for webpack",
   "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/epii-io/settle-loader.git"
   },
   "keywords": [
-    "settle",
+    "epii",
     "loader",
     "webpack"
   ],
