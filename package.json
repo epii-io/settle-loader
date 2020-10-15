@@ -1,11 +1,11 @@
 {
-  "name": "settle-loader",
-  "version": "0.2.1",
-  "description": "epii imports and exports loader for webpack",
+  "name": "launch-loader",
+  "version": "1.0.0",
+  "description": "A webpack loader to launch web application.",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/epii-io/settle-loader.git"
+    "url": "git+https://github.com/epiijs/launch-loader.git"
   },
   "keywords": [
     "epii",
@@ -13,14 +13,14 @@
     "webpack"
   ],
   "contributors": [
-    "Sartrey Lee <sartrey@163.com> (http://sartrey.cn/)"
+    "Sartrey Lee <sartrey@163.com> (https://sartrey.cn/)"
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/epii-io/settle-loader/issues"
+    "url": "https://github.com/epiijs/launch-loader/issues"
   },
-  "homepage": "https://github.com/epii-io/settle-loader#readme",
+  "homepage": "https://github.com/epiijs/launch-loader#readme",
   "dependencies": {
-    "loader-utils": "^1.1.0"
+    "loader-utils": "^2.0.0"
   }
 }

@@ -1,48 +1,40 @@
-# Settle Loader
+# launch-loader
 
-## Features
+## How It Works
 
-### settle module in `window`
-
+You can input a `React` component as entry page by `webpack`.
 ```js
 export default class extends Component {
   render() { return <p /> }
 }
-/// settle-loader - stub: x
-window.x.entry = exports.default
+
+// or
+export class Page extends Component {
+  render() { return <p /> }
+}
 ```
 
-### import implicit dependency
+`launch-loader` will try to make this component export default and attach to global namespace, then append launch code.
 
 ```js
-// a.js
-webpack(
-  class A {
-    // B is not used by A
-    // but need to be exposed to global in a.js
-  }
-  /// settle-loader - link: B
-  require(B)
-)
-
-// b.js
-window.B
+const View = window.epii.entry = exports.default;
+const ReactDOM = require('react-dom');
+const root = document.getElementById('app');
+ReactDOM.render(React.createElement(View), root);
 ```
-
-Use `expose-loader` to expose required modules.
 
 ## Usage
 
 ```sh
-npm install --save settle-loader@latest
+npm install --save launch-loader@latest
 ```
 
 ```js
 {
-  loader: 'settle-loader',
+  loader: 'launch-loader',
   options: {
-    stub: 'a.b', // window.a.b = ...
-    link: ['c'], // require('c')
+    holder: 'app', // div#app
+    global: 'epii', // window.epii.entry = app class
   }
 }
 ```

@@ -2,10 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const loaderUtils = require('loader-utils');
 
-const TEMPLATES = {
-  $imports: fs.readFileSync(path.join(__dirname, 'tpl.imports.txt'), 'utf8'),
-  $exports: fs.readFileSync(path.join(__dirname, 'tpl.exports.txt'), 'utf8')
-};
+const launchCode = fs.readFileSync(path.join(__dirname, 'tpl.launch.txt'), 'utf8');
 
 /**
  * wrap IIFE
@@ -17,56 +14,42 @@ function IIFE(code) {
   return ';(function(){' + code + '}());';
 }
 
-/**
- * make code for imports
- *
- * @param  {String[]} links
- * @return {String} imports code
- */
-function makeImportsCode(links) {
-  if (links.length > 0) {
-    return links.map(e => TEMPLATES.$imports.replace(/\$\{e\}/g, e)).join('\n'); 
+function makeAlwaysExportDefault(code) {
+  const hasDefault = /export\s+default/.test(code);
+  if (hasDefault) return code;
+  const onlyExport = code.split('export').length === 2;
+  if (!onlyExport) {
+    throw new Error('launch loader :: too many export');
   }
-  return '';
+  return code;
+}
+
+function makeLaunchCode(global, holder) {
+  const globals = global.split('.');
+  const result = launchCode
+    .replace(/global\.0/g, globals[0])
+    .replace(/global\.1/g, globals[1])
+    .replace(/holder/g, holder);
+  return IIFE(result);
 }
 
 /**
- * make code for exports
- *
- * @param  {String[]} stubs
- * @return {String} exports code
- */
-function makeExportsCode(stubs) {
-  if (stubs.length === 1 || stubs.length === 2) {
-    return TEMPLATES.$exports
-      .replace(/\$\{e0\}/g, stubs[0])
-      .replace(/\$\{e1\}/g, stubs[1] || 'entry');
-  }
-  return '';
-}
-
-/**
- * webpack loader
- * settle module into window
+ * launch-loader
  *
  * @param  {String} source
  * @return {String} result
  */
-module.exports = function SettleLoader(source) {
+module.exports = function LaunchLoader(source) {
   const query = loaderUtils.getOptions(this);
-  let { stub, link = [] } = query;
-  if (!stub || typeof stub !== 'string') {
-    throw new Error('settle loader :: invalid stub');
+  let { global, holder } = query;
+  if (!global || typeof global !== 'string') {
+    throw new Error('launch loader :: global should be string');
   }
-  stub = stub.split('.');
-  if (stub.length > 2) {
-    throw new Error('settle loader :: stub too deep');
+  if (global.split('.').length !== 2) {
+    throw new Error('launch loader :: global should be like a.b');
   }
-  if (typeof link === 'string') link = [link]
-  if (!Array.isArray(link)) {
-    throw new Error('settle loader :: invalid link');
+  if (!holder || typeof holder !== 'string') {
+    throw new Error('launch loader :: holder should be string');
   }
-  var code1 = makeExportsCode(stub);
-  var code2 = makeImportsCode(link);
-  return source + IIFE(code1 + code2);
+  return makeAlwaysExportDefault(source) + makeLaunchCode(global, holder);
 }

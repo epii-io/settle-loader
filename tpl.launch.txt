@@ -1,0 +1,11 @@
+if (typeof window !== 'undefined' && window) {
+  if (!window.${global.0}) window.${global.0} = {};
+  var view = exports.default;
+  if (!view) throw new Error('target ${global.0}.${global.1} not provided');
+  window.${global.0}.${global.1} = view;
+
+  var ReactDOM = require('react-dom');
+  var root = document.getElementById('${holder}');
+  if (!root) throw new Error('holder ${holder} not provided');
+  ReactDOM.render(React.createElement(view), root);
+};
