@@ -4,7 +4,7 @@
 
 You can input a `React` component as entry page by `webpack`.
 ```js
-export default class extends Component {
+export default class Page extends Component {
   render() { return <p /> }
 }
 
@@ -14,10 +14,10 @@ export class Page extends Component {
 }
 ```
 
-`launch-loader` will try to make this component export default and attach to global namespace, then append launch code.
+`launch-loader` will try to find the first export name and attach to global namespace, then append launch code.
 
 ```js
-const View = window.epii.entry = exports.default;
+const View = window.epii.entry = Page;
 const ReactDOM = require('react-dom');
 const root = document.getElementById('app');
 ReactDOM.render(React.createElement(View), root);
