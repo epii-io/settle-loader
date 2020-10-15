@@ -2,9 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const loaderUtils = require('loader-utils');
 
+const dummyName = 'Page' + Date.now();
 const launchCode = fs.readFileSync(path.join(__dirname, 'tpl.launch.txt'), 'utf8');
 
-function findExportName(code) {
+function makeFullExport(code) {
   const findOnlyExportName = [
     // export default class
     /export\s+default\s+class\s+(\w+)/,
@@ -18,11 +19,16 @@ function findExportName(code) {
   for (let i = 0; i < findOnlyExportName.length; i ++) {
     const matches = code.match(findOnlyExportName[i]);
     if (matches && matches[1]) {
-      // console.log('launch loader :: find first export name', matches[1]);
-      return matches[1];
+      const exportName = matches[1];
+      // console.log('launch loader :: find first export name', exportName);
+      if (exportName === 'extends') {
+        const namedCode = code.replace(matches[1], matches[1].replace('extends', dummyName + ' extends'));
+        return [namedCode, dummyName];
+      }
+      return [code, exportName];
     }
   }
-  return null;
+  return [code, null];
 }
 
 function makeLaunchCode(global, holder, target) {
@@ -56,7 +62,8 @@ module.exports = function LaunchLoader(source) {
   if (!holder || typeof holder !== 'string') {
     throw new Error('launch loader :: holder should be string');
   }
-  const exportName = findExportName(source);
-  const result = source + '\n' + makeLaunchCode(global, holder, exportName);
+  const [code1, target] = makeFullExport(source);
+  const code2 = makeLaunchCode(global, holder, target)
+  const result = code1 + '\n' + code2;
   return result;
 }
