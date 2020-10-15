@@ -1,8 +1,8 @@
 if (typeof window !== 'undefined' && window) {
-  if (!window.${global.0}) window.${global.0} = {};
-  var view = exports.default;
-  if (!view) throw new Error('target ${global.0}.${global.1} not provided');
-  window.${global.0}.${global.1} = view;
+  var view = ${target};
+  if (!view) throw new Error('target ${global0}.${global1} not provided');
+  if (!window.${global0}) window.${global0} = {};
+  window.${global0}.${global1} = view;
 
   var ReactDOM = require('react-dom');
   var root = document.getElementById('${holder}');

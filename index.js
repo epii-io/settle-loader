@@ -4,33 +4,38 @@ const loaderUtils = require('loader-utils');
 
 const launchCode = fs.readFileSync(path.join(__dirname, 'tpl.launch.txt'), 'utf8');
 
-/**
- * wrap IIFE
- *
- * @param  {String} code
- * @return {String} iife code
- */
-function IIFE(code) {
-  return ';(function(){' + code + '}());';
-}
-
-function makeAlwaysExportDefault(code) {
-  const hasDefault = /export\s+default/.test(code);
-  if (hasDefault) return code;
-  const onlyExport = code.split('export').length === 2;
-  if (!onlyExport) {
-    throw new Error('launch loader :: too many export');
+function findExportName(code) {
+  const findOnlyExportName = [
+    // export default class
+    /export\s+default\s+class\s+(\w+)/,
+    // export default function
+    /export\s+default\s+function\s+(\w+)/,
+    // export class
+    /export\s+class\s+(\w+)/,
+    // export function
+    /export\s+function\s+(\w+)/
+  ];
+  for (let i = 0; i < findOnlyExportName.length; i ++) {
+    const matches = code.match(findOnlyExportName[i]);
+    if (matches && matches[1]) {
+      // console.log('launch loader :: find first export name', matches[1]);
+      return matches[1];
+    }
   }
-  return code;
+  return null;
 }
 
-function makeLaunchCode(global, holder) {
+function makeLaunchCode(global, holder, target) {
+  if (!target) {
+    throw new Error('launch loader :: export name not found')
+  }
   const globals = global.split('.');
   const result = launchCode
-    .replace(/global\.0/g, globals[0])
-    .replace(/global\.1/g, globals[1])
-    .replace(/holder/g, holder);
-  return IIFE(result);
+    .replace(/\$\{global0\}/g, globals[0])
+    .replace(/\$\{global1\}/g, globals[1])
+    .replace(/\$\{holder\}/g, holder)
+    .replace(/\$\{target\}/g, target);
+  return result;
 }
 
 /**
@@ -51,5 +56,7 @@ module.exports = function LaunchLoader(source) {
   if (!holder || typeof holder !== 'string') {
     throw new Error('launch loader :: holder should be string');
   }
-  return makeAlwaysExportDefault(source) + makeLaunchCode(global, holder);
+  const exportName = findExportName(source);
+  const result = source + '\n' + makeLaunchCode(global, holder, exportName);
+  return result;
 }
